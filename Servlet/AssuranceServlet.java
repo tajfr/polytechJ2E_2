@@ -1,0 +1,65 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Servlet;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import Entity.AssuranceVie;
+import javax.servlet.http.HttpSession;
+
+/**
+ *
+ * @author Cyrielle
+ */
+@WebServlet(name = "AssuranceServlet", urlPatterns = {"/AssuranceServlet"})
+public class AssuranceServlet extends HttpServlet {
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        String value1 = request.getParameter("initial");
+        String value2 = request.getParameter("duree");
+        String value3 = request.getParameter("periodique");
+        String value4 = request.getParameter("rendement");
+        RequestDispatcher dispatcher = null;
+        String message;
+        try{
+            
+              int versementInit = Integer.parseInt(value1);
+              int dureeContrat = Integer.parseInt(value2);
+              int versementPeriod = Integer.parseInt(value3);
+              int rendement = Integer.parseInt(value4);
+              AssuranceVie simu= new AssuranceVie(versementInit,versementPeriod,rendement,dureeContrat);
+              
+              if((rendement!=0)&&(versementInit>=0) && (versementPeriod>0)){
+                message = "Votre capital à terme au bout de "+dureeContrat+" ans sera de "+simu.getCapitalATereme()+"€";
+              }else if((versementInit<=0) || (versementPeriod<0)){
+                  message = "Une erreur a été rencontrée: Vos versements doivent être positif";
+              }else{
+                message = "Une erreur a été rencontrée: Votre rendement doit être positif";
+              }
+              
+        }catch (NumberFormatException e){
+            message = "Une erreur a été rencontrée: Verifiez que vos valeurs sont des chiffres !";
+        }
+        request.setAttribute("info", message);
+        dispatcher = request.getRequestDispatcher("SimulerAssurance.jsp");
+        dispatcher.forward(request, response);
+    }
+}
